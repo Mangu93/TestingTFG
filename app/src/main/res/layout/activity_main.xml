@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/Bienvenidos"
+        android:id="@+id/textView1"
+     />
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="5dp"
+        android:background="#ffffff"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1.0"
+
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/btn_niveles"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            style="@style/btnStyleAcapulco"
+            android:layout_weight="1.0"
+            android:text="@string/Niveles"
+            android:onClick="onClickNiveles"
+            />
+
+        <Button
+            android:id="@+id/btn_prueba"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1.0"
+            style="@style/btnStyleAcapulco"
+            android:text="@string/Subirniveles"
+            android:onClick="onClickSubir"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1.0"
+
+
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/btn_informacion"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            style="@style/btnStyleAcapulco"
+            android:layout_weight="1.0"
+            android:text="@string/Informacion"
+            android:onClick="onClickInformacion"
+            />
+        <Button
+            android:id="@+id/btn_compartir"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            style="@style/btnStyleAcapulco"
+            android:layout_weight="1.0"
+            android:text="@string/Compartir"
+            android:onClick="onClickCompartir"
+            />
+
+
+
+
+    </LinearLayout>
+
+</LinearLayout>

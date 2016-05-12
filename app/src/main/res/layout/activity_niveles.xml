@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:id="@+id/map"
+    tools:context=".NivelesActivity"
+    android:name="com.google.android.gms.maps.SupportMapFragment">
+<!--
+<com.google.android.gms.maps.MapView
+    android:id="@+id/mapview"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:clickable="true"
+    android:apiKey="@string/google_maps_key"
+    />
+-->
+    <fragment
+        android:id="@+id/mapview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        class="com.google.android.gms.maps.SupportMapFragment"
+        >
+        <ImageButton android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|top"
+            android:src="@drawable/ic_localizar"
+            android:contentDescription="@string/mi_localizacion"
+            android:background="?android:selectableItemBackground"
+            android:padding="10dp"
+            android:layout_marginTop="10dp"
+            android:paddingRight="10dp"
+            android:onClick="onClickFocus"
+            />
+        <ImageButton android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|top"
+            android:background="?android:selectableItemBackground"
+            android:contentDescription="@string/siguiente"
+            android:src="@mipmap/ic_next"
+            android:padding="10dp"
+            android:layout_marginTop="10dp"
+            android:paddingRight="10dp"
+            android:onClick="onClickNext"
+            />
+        </fragment>
+
+
+</LinearLayout>
