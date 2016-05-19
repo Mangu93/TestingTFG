@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class NivelesActivity extends FragmentActivity implements OnMapReadyCallback {
+public class NoiseActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private LocationManager locationManager;
@@ -53,7 +53,7 @@ public class NivelesActivity extends FragmentActivity implements OnMapReadyCallb
         super.onCreate(savedInstanceState);
         markerList = new ArrayList<>();
         locationManager = (LocationManager)getApplicationContext().getSystemService(LOCATION_SERVICE);
-        setContentView(R.layout.activity_niveles);
+        setContentView(R.layout.activity_noise);
         FragmentManager fmanager = getSupportFragmentManager();
         Fragment fragment = fmanager.findFragmentById(R.id.mapview);
         SupportMapFragment mapFragment = (SupportMapFragment) fragment;

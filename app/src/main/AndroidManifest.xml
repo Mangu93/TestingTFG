@@ -22,13 +22,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Informacion" />
+        <activity android:name=".InformationActivity" />
         <activity
-            android:name=".record_activity"
+            android:name=".RecordActivity"
             android:label="@string/title_activity_record_activity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".NivelesActivity"
+            android:name=".NoiseActivity"
             android:label="@string/title_activity_niveles"/>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.

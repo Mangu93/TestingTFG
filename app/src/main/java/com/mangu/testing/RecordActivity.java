@@ -15,14 +15,14 @@ import android.widget.Toast;
 
 import java.io.IOException;
 
-public class record_activity extends AppCompatActivity {
+public class RecordActivity extends AppCompatActivity {
     private MediaRecorder myAudioRecorder;
     private String outputFile = null;
     private Button start,stop,play;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_record_activity);
+        setContentView(R.layout.activity_record);
         start = (Button)findViewById(R.id.btn_grabar);
         stop = (Button)findViewById(R.id.btn_prueba);
         play = (Button)findViewById(R.id.btn_reproducir);
