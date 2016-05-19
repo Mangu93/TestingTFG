@@ -27,6 +27,7 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -67,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         setUNIQUE_CODE(tlf1+"x"+UUID);
     }
 
-    public void onClickNiveles(View view) {
+    public void onClickNoise(View view) {
         Intent intent = new Intent(getApplicationContext(), NoiseActivity.class);
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             showAlert();
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void onClickSubir(View view) {
+    public void onClickRecord(View view) {
         Intent intent = new Intent(getApplicationContext(), RecordActivity.class);
 
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -147,12 +148,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void onClickInformacion(View view) {
+    public void onClickInformation(View view) {
         Intent intent = new Intent(getApplicationContext(), InformationActivity.class);
         startActivity(intent);
     }
 
-    public void onClickCompartir(View view) {
+    public void onClickShare(View view) {
         Resources resources = getResources();
 
         Intent emailIntent = new Intent();
@@ -203,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(openInChooser);
     }
 
-    private class UploadTask extends AsyncTask<Void, Integer, Void> {
+    private class UploadTask extends AsyncTask<String, Integer, Void> {
 
 
         private Context context;
@@ -211,16 +212,25 @@ public class MainActivity extends AppCompatActivity {
             this.context = context;
         }
         @Override
-        protected Void doInBackground(Void... params) {
+        protected Void doInBackground(String... params) {
 
             //POST al server de ANTONIO, TRABAJA CABRON
             //ES DOS DE MAYO Y AUN NO HE PODIDO HACER ESTA PARTE POR TI
+            JSONObject jsonObject = new JSONObject();
+            JSONObject jsonArray = new JSONObject();
+            try {
+                jsonObject.put("value",params[0]);
+                jsonObject.put("localization",params[1]);
+                jsonArray.put("marker",jsonObject);
+            } catch (JSONException e) {
+                Log.e("JSONException",e.getMessage().toString());
+            }
             RequestQueue queue = Volley.newRequestQueue(this.context);
             String url = "www.serverantonio.com";
             //ConcurrentHashMap es como yo jugando a un juego clásico de Sonic
             //Va muy rápido, pero seguro que me voy a pegar una ostia del carajo.
             ConcurrentHashMap<String, String> sendParams = new ConcurrentHashMap<>();
-            sendParams.put("test","more test");
+            sendParams.put("test",jsonObject.toString());
             JsonObjectRequest req = new JsonObjectRequest(url, new JSONObject(sendParams), new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {

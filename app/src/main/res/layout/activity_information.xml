@@ -27,6 +27,6 @@
         android:layout_below="@+id/tv_info"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:onClick="onClickCorreo"
+        android:onClick="onClickMail"
         />
 </RelativeLayout>

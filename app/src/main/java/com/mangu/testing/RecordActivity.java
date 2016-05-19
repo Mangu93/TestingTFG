@@ -18,14 +18,16 @@ import java.io.IOException;
 public class RecordActivity extends AppCompatActivity {
     private MediaRecorder myAudioRecorder;
     private String outputFile = null;
-    private Button start,stop,play;
+    private Button start, stop, play;
+    private int amplitude = -1; //Umbral
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
-        start = (Button)findViewById(R.id.btn_grabar);
-        stop = (Button)findViewById(R.id.btn_prueba);
-        play = (Button)findViewById(R.id.btn_reproducir);
+        start = (Button) findViewById(R.id.btn_grabar);
+        stop = (Button) findViewById(R.id.btn_prueba);
+        play = (Button) findViewById(R.id.btn_reproducir);
         stop.setEnabled(false);
         stop.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
         play.setEnabled(false);
@@ -41,47 +43,49 @@ public class RecordActivity extends AppCompatActivity {
         /**
          * Experimental. It may fail
 
-        Intent intent = new Intent();
-        intent.putExtra("path",outputFile);
-        setResult(1, intent);
-        finishActivity(1);*/
+         Intent intent = new Intent();
+         intent.putExtra("path",outputFile);
+         setResult(1, intent);
+         finishActivity(1);*/
     }
 
 
     @Override
     public void onBackPressed() {
         Intent intent = new Intent();
-        intent.putExtra("path",outputFile);
+        intent.putExtra("value", amplitude);
         setResult(1, intent);
         finish();
     }
-        public void start(View view){
-            try {
-                myAudioRecorder.prepare();
-                myAudioRecorder.start();
-            } catch (IllegalStateException|IOException e) {
-                e.printStackTrace();
-            }
-            start.setEnabled(false);
-            start.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
-            stop.setEnabled(true);
-            Toast.makeText(getApplicationContext(), "Recording started",
-                    Toast.LENGTH_LONG).show();
-            Log.i(this.toString(), "Recording started");
+
+    public void start(View view) {
+        try {
+            myAudioRecorder.prepare();
+            myAudioRecorder.start();
+        } catch (IllegalStateException | IOException e) {
+            e.printStackTrace();
         }
+        start.setEnabled(false);
+        start.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
+        stop.setEnabled(true);
+        Toast.makeText(getApplicationContext(), "Recording started",
+                Toast.LENGTH_LONG).show();
+        Log.i(this.toString(), "Recording started");
+    }
 
 
     public void stop(View view) {
         myAudioRecorder.stop();
+        amplitude = myAudioRecorder.getMaxAmplitude();
         myAudioRecorder.release();
         myAudioRecorder = null;
         stop.setEnabled(false);
         stop.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
         start.setEnabled(true);
         play.setEnabled(true);
-        Toast.makeText(getApplicationContext(), "Audio recorded successfully",
+        Toast.makeText(getApplicationContext(), "Value: "+amplitude,
                 Toast.LENGTH_LONG).show();
-        Log.i(this.toString(), "Audio recorded successfully");
+        Log.i(this.toString(), "Value: "+amplitude);
 
     }
 
@@ -90,8 +94,8 @@ public class RecordActivity extends AppCompatActivity {
         try {
             m.setDataSource(outputFile);
             m.prepare();
-        }catch (IOException ex) {
-            Log.e(ex.getCause().toString(),ex.toString());
+        } catch (IOException ex) {
+            Log.e(ex.getCause().toString(), ex.toString());
         }
         m.start();
         Toast.makeText(getApplicationContext(), "Playing audio",
