@@ -14,7 +14,6 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.telephony.TelephonyManager;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
@@ -27,7 +26,6 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -130,6 +128,11 @@ public class MainActivity extends AppCompatActivity {
                             bestLocation = l;
                         }
                     }
+                    if(value!=-1) {
+                        UploadTask uploadTask = new UploadTask(getApplicationContext());
+                        String lat_long = bestLocation.getLatitude() + "," + bestLocation.getLongitude();
+                        //uploadTask.execute(String.valueOf(value),lat_long);
+                    }
                     //TO-DO bestLocation to String may cause nullPointerException
                     Toast.makeText(this.getApplicationContext(),String.valueOf(value), Toast.LENGTH_LONG).show();
 
@@ -218,7 +221,9 @@ public class MainActivity extends AppCompatActivity {
                 jsonObject.put("localization",params[1]);
                 jsonArray.put("marker",jsonObject);
             } catch (JSONException e) {
-                Log.e("JSONException",e.getMessage().toString());
+                Log.e("JSONException",e.getMessage());
+            }catch(NullPointerException e) {
+                Log.e("NullPointerException",e.getMessage());
             }
             RequestQueue queue = Volley.newRequestQueue(this.context);
             String url = "www.serverantonio.com";

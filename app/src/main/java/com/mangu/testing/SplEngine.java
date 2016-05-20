@@ -320,7 +320,6 @@ public class SplEngine extends Thread {
 
         try {
             mRecordInstance.startRecording();
-
             double splValue = 0.0;
             double rmsValue = 0.0;
 
