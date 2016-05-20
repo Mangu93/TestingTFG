@@ -54,18 +54,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
-        TelephonyManager tMgr = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
-        String tlf1 = tMgr.getLine1Number();
-        if(tlf1==null) {
-            tlf1 = "662430757"; //If runned on VM
-        }
         mRequestQueue = Volley.newRequestQueue(getApplicationContext());
-        String UUID = java.util.UUID.randomUUID().toString();
-        setUNIQUE_CODE(tlf1+"x"+UUID);
+        setUNIQUE_CODE("LibeliumBoard");
     }
 
     public void onClickNoise(View view) {
@@ -122,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
                  */
 
                 try {
+                    double value = data.getDoubleExtra("value",-1);
                         /*UploadTask uploadTask = new UploadTask();
                         uploadTask.execute();*/
                     List<String> providers = locationManager.getProviders(true);
@@ -137,8 +131,9 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                     //TO-DO bestLocation to String may cause nullPointerException
-                    Toast.makeText(this.getApplicationContext(), bestLocation.toString(), Toast.LENGTH_LONG).show();
-                    Log.i("Localizacion", bestLocation.toString());
+                    Toast.makeText(this.getApplicationContext(),String.valueOf(value), Toast.LENGTH_LONG).show();
+
+                    Log.i("onActivityResult", String.valueOf(value));
                 } catch (SecurityException e) {
                     Log.e("SecurityException", e.getLocalizedMessage());
                     Toast.makeText(this.getApplicationContext(), "SecurityException", Toast.LENGTH_LONG).show();
