@@ -19,10 +19,6 @@ package com.mangu.testing;
  */
 
 
-import java.io.FileWriter;
-import java.math.BigDecimal;
-import java.util.Date;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.AudioFormat;
@@ -32,6 +28,10 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+
+import java.io.FileWriter;
+import java.math.BigDecimal;
+import java.util.Calendar;
 
 /**
  *
@@ -47,31 +47,25 @@ public class SplEngine extends Thread {
     private static final int MY_MSG = 1;
     private static final int MAXOVER_MSG = 2;
     private static final int ERROR_MSG = -1;
-
-    private volatile int BUFFSIZE = 0;
     private static final double P0 = 0.000002;
-
     private static final int CALIB_INCREMENT = 3;
     private static final int CALIB_DEFAULT = -80;
-    private int mCaliberationValue = CALIB_DEFAULT;
-
-    private volatile boolean mIsRunning = false;
-    private Handler mHandle = null;
     private static double median = -1;
-    private double mMaxValue = 0.0;
-    private volatile boolean mShowMaxValue = false;
-
-    private FileWriter mSplLog = null;
-    private volatile boolean mIsLogging = false;
     private static String LOGPATH = Environment.getExternalStorageDirectory().getPath(); //"/sdcard/splmeter_";
-    private int LOGLIMIT = 50;
-    private int logCount = 0;
-
-    private volatile String mode = "FAST";
-
     AudioRecord mRecordInstance = null;
     Context mContext = null;
     String PREFS_NAME = "SPLMETER";
+    private volatile int BUFFSIZE = 0;
+    private int mCaliberationValue = CALIB_DEFAULT;
+    private volatile boolean mIsRunning = false;
+    private Handler mHandle = null;
+    private double mMaxValue = 0.0;
+    private volatile boolean mShowMaxValue = false;
+    private FileWriter mSplLog = null;
+    private volatile boolean mIsLogging = false;
+    private int LOGLIMIT = 50;
+    private int logCount = 0;
+    private volatile String mode = "FAST";
 
 
     public SplEngine(Handler handle, Context context) {
@@ -274,15 +268,15 @@ public class SplEngine extends Thread {
     /**
      * If logging, then store the spl values to a log file.
      * separate log file for each day.
+     * Replaced deprecated Date for Calendar methods
      */
     private void writeLog(double value) {
         if (mIsLogging) {
             if (logCount++ > LOGLIMIT) {
                 try {
-                    Date now = new Date();
-
-                    mSplLog = new FileWriter(LOGPATH + now.getDate() + "_"
-                            + now.getMonth() + "_" + (now.getYear() + 1900)
+                    Calendar cal = Calendar.getInstance();
+                    mSplLog = new FileWriter(LOGPATH + cal.get(Calendar.DAY_OF_MONTH) + "_"
+                            + cal.get(Calendar.MONTH) + "_" + (cal.get(Calendar.YEAR) + 1900)
                             + ".xls", true);
                     mSplLog.append(value + "\n");
                     mSplLog.close();
@@ -293,6 +287,10 @@ public class SplEngine extends Thread {
                 logCount = 0;
             }
         }
+    }
+
+    public double getMedian() {
+        return median;
     }
 
     /**
@@ -309,10 +307,6 @@ public class SplEngine extends Thread {
             median=median/2;
         }
     }
-    public double getMedian() {
-        return median;
-    }
-
 
     /**
      * The main thread. Records audio and calculates the SPL The heart of the
