@@ -30,7 +30,7 @@
             style="@style/btnStyleAcapulco"
             android:layout_weight="1.0"
             android:text="@string/Niveles"
-            android:onClick="onClickNiveles"
+            android:onClick="onClickNoise"
             />
 
         <Button
@@ -40,7 +40,7 @@
             android:layout_weight="1.0"
             style="@style/btnStyleAcapulco"
             android:text="@string/Subirniveles"
-            android:onClick="onClickSubir"
+            android:onClick="onClickRecord"
             />
 
     </LinearLayout>
@@ -60,7 +60,7 @@
             style="@style/btnStyleAcapulco"
             android:layout_weight="1.0"
             android:text="@string/Informacion"
-            android:onClick="onClickInformacion"
+            android:onClick="onClickInformation"
             />
         <Button
             android:id="@+id/btn_compartir"
@@ -69,7 +69,7 @@
             style="@style/btnStyleAcapulco"
             android:layout_weight="1.0"
             android:text="@string/Compartir"
-            android:onClick="onClickCompartir"
+            android:onClick="onClickShare"
             />
 
 
