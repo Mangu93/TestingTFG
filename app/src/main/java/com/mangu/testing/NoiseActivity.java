@@ -1,5 +1,6 @@
 package com.mangu.testing;
 
+import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -19,6 +20,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -26,33 +30,18 @@ import java.util.Random;
 public class NoiseActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private LocationManager locationManager;
-    private List<Marker> markerList;
-    private int contador = 0;
-
-    private class MarkerTask extends AsyncTask<Void, Integer, Void> {
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            Random rnd = new Random();
-            LatLng malaga = new LatLng(36.721261, -4.421266);
-            LatLng random = new LatLng(rnd.nextInt(50), rnd.nextInt(50));
-            Marker random_marker = mMap.addMarker(new MarkerOptions().position(random).title("Random"));
-            Marker example = mMap.addMarker(new MarkerOptions().position(malaga).title("Malaga").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_image)).snippet(getString(R.string.example)));
-            markerList.add(random_marker);
-            markerList.add(example);
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(malaga));
-            mMap.moveCamera(CameraUpdateFactory.zoomIn());
-            return null;
-        }
-
-    }
-
+    private LocationManager mLocationManager;
+    private List<Marker> mMarkerList;
+    private int mCounter = 0;
+    private List<String> mStringMarkerList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        markerList = new ArrayList<>();
-        locationManager = (LocationManager)getApplicationContext().getSystemService(LOCATION_SERVICE);
+        mStringMarkerList = new ArrayList<>();
+        mMarkerList = new ArrayList<>();
+                /*MarkerTask markerTask = new MarkerTask();
+        markerTask.execute();*/
+        mLocationManager = (LocationManager)getApplicationContext().getSystemService(LOCATION_SERVICE);
         setContentView(R.layout.activity_noise);
         FragmentManager fmanager = getSupportFragmentManager();
         Fragment fragment = fmanager.findFragmentById(R.id.mapview);
@@ -82,15 +71,20 @@ public class NoiseActivity extends FragmentActivity implements OnMapReadyCallbac
                 return false; //Asi no sobreescribe el comportamiento del Listener original, pudiendo conseguir los botones de abajo
             }
         });
-        /*MarkerTask markerTask = new MarkerTask();
-        markerTask.execute();*/
+        for(String s : mStringMarkerList) {
+            String[] splitted = s.split(";");
+            String[] latlng = splitted[1].split(",");
+            LatLng stringLatLng = new LatLng(Double.valueOf(latlng[0]),Double.valueOf(latlng[1]));
+            Marker stringMarker = mMap.addMarker(new MarkerOptions().position(stringLatLng).title("Nivel de ruido:"+splitted[0]).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_image)));
+            mMarkerList.add(stringMarker);
+        }
         Random rnd = new Random();
         LatLng malaga = new LatLng(36.721261, -4.421266);
         LatLng random = new LatLng(rnd.nextInt(50), rnd.nextInt(50));
         Marker random_marker = mMap.addMarker(new MarkerOptions().position(random).title("Random"));
         Marker example = mMap.addMarker(new MarkerOptions().position(malaga).title("Malaga").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_image)).snippet(this.getString(R.string.example)));
-        markerList.add(random_marker);
-        markerList.add(example);
+        mMarkerList.add(random_marker);
+        mMarkerList.add(example);
         /*mMap.moveCamera(CameraUpdateFactory.newLatLng(malaga));
         mMap.moveCamera(CameraUpdateFactory.zoomIn());*/
         moveCamera(example);
@@ -99,10 +93,10 @@ public class NoiseActivity extends FragmentActivity implements OnMapReadyCallbac
 
     public void onClickFocus(View view) {
         try {
-            List<String> providers = locationManager.getProviders(true);
+            List<String> providers = mLocationManager.getProviders(true);
             Location bestLocation = null;
             for (String provider : providers) {
-                Location l = locationManager.getLastKnownLocation(provider);
+                Location l = mLocationManager.getLastKnownLocation(provider);
                 if (l == null) {
                     continue;
                 }
@@ -111,10 +105,10 @@ public class NoiseActivity extends FragmentActivity implements OnMapReadyCallbac
                 }
             }
             if(bestLocation!=null) {
-                LatLng new_latlng = new LatLng(bestLocation.getLatitude(), bestLocation.getLongitude());
-                Marker usted = mMap.addMarker(new MarkerOptions().position(new_latlng).title("Usted está aquí").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_localizar)));
-                usted.showInfoWindow();
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(new_latlng));
+                LatLng newLatLng = new LatLng(bestLocation.getLatitude(), bestLocation.getLongitude());
+                Marker actualLocation = mMap.addMarker(new MarkerOptions().position(newLatLng).title("Usted está aquí").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_localizar)));
+                actualLocation.showInfoWindow();
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(newLatLng));
             }
         }catch (SecurityException e) {
             Log.e("SecurityException", e.getLocalizedMessage());
@@ -124,20 +118,21 @@ public class NoiseActivity extends FragmentActivity implements OnMapReadyCallbac
     }
 
     public void onClickNext(View view) {
-        int next = contador % markerList.size();
-        if(next < markerList.size()) {
-            /*Marker next_marker = markerList.get(next);
+        /*  Marker next_marker = mMarkerList.get(next);
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(next_marker.getPosition(),15));
             mMap.animateCamera(CameraUpdateFactory.zoomIn());
             mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
-            next_marker.showInfoWindow();*/
+            next_marker.showInfoWindow();
+            */
+        int next = mCounter % mMarkerList.size();
+        if(next < mMarkerList.size()) {
             moveCamera(next);
-            contador++;
+            mCounter++;
         }
     }
 
     public void moveCamera(int next) {
-        Marker next_marker = markerList.get(next);
+        Marker next_marker = mMarkerList.get(next);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(next_marker.getPosition(),15));
         mMap.animateCamera(CameraUpdateFactory.zoomIn());
         mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
@@ -149,5 +144,38 @@ public class NoiseActivity extends FragmentActivity implements OnMapReadyCallbac
         mMap.animateCamera(CameraUpdateFactory.zoomIn());
         mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
         marker.showInfoWindow();
+    }
+
+    private class MarkerTask extends AsyncTask<Void, Integer, Void> {
+        Context context;
+        public MarkerTask(Context context) {
+            this.context = context;
+        }
+        @Override
+        protected Void doInBackground(Void... params) {
+            //Suponiendo que ya tenemos el JSON por Volley, que lo mockeo aqui
+            JSONObject jsonObject = new JSONObject();
+            JSONObject jsonArray = new JSONObject();
+            try {
+                jsonObject.put("value",params[0]);
+                jsonObject.put("localization",params[1]);
+                jsonArray.put("marker",jsonObject);
+            } catch (JSONException e) {
+                Log.e("JSONException",e.getMessage());
+            }catch(NullPointerException e) {
+                Log.e("NullPointerException",e.getMessage());
+            }
+            @SuppressWarnings("UnusedAssignment") JSONObject otroObject = new JSONObject();
+            try {
+                otroObject = jsonArray.getJSONObject("marker");
+                String toAdd = otroObject.getString("value")+ ";"+ otroObject.getString("localization");
+                mStringMarkerList.add(toAdd);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
     }
 }

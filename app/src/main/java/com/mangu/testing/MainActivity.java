@@ -35,47 +35,37 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class MainActivity extends AppCompatActivity {
     private static final int UPLOAD_CODE = 101;
-    private LocationManager locationManager;
-    private boolean gps_on = false;
-    private String UNIQUE_CODE;
-    public static final String TAG = "MainActivity";
+    private static final String TAG = "MainActivity";
+    private static final String NPE_OR_INVALID_VALUE = "NPE or Invalid Value";
+    private LocationManager mLocationManager;
+    //private String mUniqueCode="LibeliumBoard";
     private RequestQueue mRequestQueue;
 
-
-    public String getUNIQUE_CODE() {
-        return UNIQUE_CODE;
-    }
-
-    public void setUNIQUE_CODE(String UNIQUE_CODE) {
-        this.UNIQUE_CODE = UNIQUE_CODE;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+        mLocationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
         mRequestQueue = Volley.newRequestQueue(getApplicationContext());
-        setUNIQUE_CODE("LibeliumBoard");
     }
 
     public void onClickNoise(View view) {
         Intent intent = new Intent(getApplicationContext(), NoiseActivity.class);
-        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        if (!mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             showAlert();
         }
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        if (mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             startActivity(intent);
         }
     }
 
     public void onClickRecord(View view) {
         Intent intent = new Intent(getApplicationContext(), RecordActivity.class);
-
-        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        if (!mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             showAlert();
         }
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        if (mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             startActivityForResult(intent, UPLOAD_CODE);
         }
     }
@@ -87,14 +77,11 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("Activar", new DialogInterface.OnClickListener() {
                     public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                        gps_on = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
                     }
                 })
                 .setNegativeButton("No activar", new DialogInterface.OnClickListener() {
                     public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         dialog.cancel();
-                        gps_on = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-
                     }
                 });
         final AlertDialog alert = builder.create();
@@ -105,21 +92,14 @@ public class MainActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == UPLOAD_CODE) {
             if (resultCode == 1) {
-                /**
-                 * Aquí deberia ir la llamada a alguna API para enviar peticiones,
-                 * integrandola con la de Antonio,
-                 * o usar un AsyncTask de toda la vida,
-                 * pero por ahora vamos a guardarlo en un Log y hacer un Toast.
-                 */
-
                 try {
                     double value = data.getDoubleExtra("value",-1);
                         /*UploadTask uploadTask = new UploadTask();
                         uploadTask.execute();*/
-                    List<String> providers = locationManager.getProviders(true);
+                    List<String> providers = mLocationManager.getProviders(true);
                     Location bestLocation = null;
                     for (String provider : providers) {
-                        Location l = locationManager.getLastKnownLocation(provider);
+                        Location l = mLocationManager.getLastKnownLocation(provider);
                         if (l == null) {
                             continue;
                         }
@@ -128,20 +108,23 @@ public class MainActivity extends AppCompatActivity {
                             bestLocation = l;
                         }
                     }
-                    if(value!=-1) {
+                    //TO-DO bestLocation to String may cause nullPointerException
+                    if(value!=-1 && bestLocation!=null) {
                         UploadTask uploadTask = new UploadTask(getApplicationContext());
                         String lat_long = bestLocation.getLatitude() + "," + bestLocation.getLongitude();
                         //uploadTask.execute(String.valueOf(value),lat_long);
+                    }else {
+                        Log.e(NPE_OR_INVALID_VALUE,"Value:"+value);
+                        if(bestLocation==null){
+                            Log.e(NPE_OR_INVALID_VALUE,"BestLocation is null");
+                        }
                     }
-                    //TO-DO bestLocation to String may cause nullPointerException
                     Toast.makeText(this.getApplicationContext(),String.valueOf(value), Toast.LENGTH_LONG).show();
-
                     Log.i("onActivityResult", String.valueOf(value));
                 } catch (SecurityException e) {
                     Log.e("SecurityException", e.getLocalizedMessage());
                     Toast.makeText(this.getApplicationContext(), "SecurityException", Toast.LENGTH_LONG).show();
                 }
-
             }
         }
     }
@@ -153,21 +136,16 @@ public class MainActivity extends AppCompatActivity {
 
     public void onClickShare(View view) {
         Resources resources = getResources();
-
         Intent emailIntent = new Intent();
         emailIntent.setAction(Intent.ACTION_SEND);
         // Native email client doesn't currently support HTML, but it doesn't hurt to try in case they fix it
         emailIntent.putExtra(Intent.EXTRA_TEXT, Html.fromHtml(resources.getString(R.string.share_email_native)));
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, resources.getString(R.string.share_email_subject));
         emailIntent.setType("message/rfc822");
-
         PackageManager pm = getPackageManager();
         Intent sendIntent = new Intent(Intent.ACTION_SEND);
         sendIntent.setType("text/plain");
-
-
         Intent openInChooser = Intent.createChooser(emailIntent, resources.getString(R.string.share_chooser_text));
-
         List<ResolveInfo> resInfo = pm.queryIntentActivities(sendIntent, 0);
         List<LabeledIntent> intentList = new ArrayList<>();
         for (int i = 0; i < resInfo.size(); i++) {
@@ -203,8 +181,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private class UploadTask extends AsyncTask<String, Integer, Void> {
-
-
         private Context context;
         public UploadTask(Context context) {
             this.context = context;
@@ -225,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
             }catch(NullPointerException e) {
                 Log.e("NullPointerException",e.getMessage());
             }
-            RequestQueue queue = Volley.newRequestQueue(this.context);
+            //RequestQueue queue = Volley.newRequestQueue(this.context);
             String url = "www.serverantonio.com";
             //ConcurrentHashMap es como yo jugando a un juego clásico de Sonic
             //Va muy rápido, pero seguro que me voy a pegar una ostia del carajo.
@@ -248,9 +224,7 @@ public class MainActivity extends AppCompatActivity {
             });
             req.setTag(TAG);
             mRequestQueue.add(req);
-
-
-            return null;
+            return null; //I don't like it. I don't liek it
         }
     }
 }

@@ -4,9 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.media.MediaPlayer;
-import android.media.MediaRecorder;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
@@ -18,15 +16,12 @@ import android.widget.Toast;
 import java.io.IOException;
 
 public class RecordActivity extends AppCompatActivity {
-    static final int MY_MSG = 1;
-    static final int ERROR_MSG = -1;
-    public static double REFERENCE = 0.00002;
-    SplEngine mEngine;
-    private MediaRecorder myAudioRecorder;
-    private String outputFile = null;
+    private static final int MY_MSG = 1;
+    private static final int ERROR_MSG = -1;
+    private SplEngine mEngine;
     private Button start, stop, play;
     private double amplitude = -1; //Umbral
-    public Handler mhandle = new Handler() {
+    public Handler mHandle = new Handler() {
       @Override
         public void handleMessage(Message msg) {
           switch (msg.what) {
@@ -57,18 +52,7 @@ public class RecordActivity extends AppCompatActivity {
         stop.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
         play.setEnabled(false);
         play.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
-
-
-        mEngine = new SplEngine(this.mhandle, RecordActivity.this);
-
-
-        /**
-         * Experimental. It may fail
-
-         Intent intent = new Intent();
-         intent.putExtra("path",outputFile);
-         setResult(1, intent);
-         finishActivity(1);*/
+        mEngine = new SplEngine(this.mHandle, RecordActivity.this);
     }
 
     @Override
@@ -93,11 +77,6 @@ public class RecordActivity extends AppCompatActivity {
     public void stop(View view) {
         amplitude = mEngine.getMedian();
         mEngine.stop_engine();
-        /*amplitude = myAudioRecorder.getMaxAmplitude();
-        double md = 20.0 * Math.log10(amplitude / 32767.0);
-        md = Math.abs(md)*10;
-        amplitude = md;*/
-        //db = 20.0 * log10(peakAmplitude/32767.0)
         stop.setEnabled(false);
         stop.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
         start.setEnabled(true);
@@ -111,7 +90,7 @@ public class RecordActivity extends AppCompatActivity {
     public void play(View view) {
         MediaPlayer m = new MediaPlayer();
         try {
-            m.setDataSource(outputFile);
+            //m.setDataSource(outputFile);
             m.prepare();
         } catch (IOException ex) {
             Log.e(ex.getCause().toString(), ex.toString());

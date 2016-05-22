@@ -28,6 +28,7 @@ import android.content.SharedPreferences;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
@@ -37,6 +38,7 @@ import android.preference.PreferenceManager;
  * @author Hashir N A <hashir@mobware4u.com>
  *
  */
+//TO-DO TODO: Cambiar deprecated (otra rama)
 public class SplEngine extends Thread {
     private static final int FREQUENCY = 44100;
     private static final int CHANNEL = AudioFormat.CHANNEL_CONFIGURATION_MONO;
@@ -61,7 +63,7 @@ public class SplEngine extends Thread {
 
     private FileWriter mSplLog = null;
     private volatile boolean mIsLogging = false;
-    private static String LOGPATH = "/sdcard/splmeter_";
+    private static String LOGPATH = Environment.getExternalStorageDirectory().getPath(); //"/sdcard/splmeter_";
     private int LOGLIMIT = 50;
     private int logCount = 0;
 
