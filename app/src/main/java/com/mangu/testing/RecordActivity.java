@@ -3,7 +3,6 @@ package com.mangu.testing;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -13,13 +12,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import java.io.IOException;
-
 public class RecordActivity extends AppCompatActivity {
     private static final int MY_MSG = 1;
     private static final int ERROR_MSG = -1;
     private SplEngine mEngine;
-    private Button start, stop, play;
+    private Button start, stop, enviar;
+    private boolean stopped = false;
     private double amplitude = -1; //Umbral
     public Handler mHandle = new Handler() {
       @Override
@@ -47,11 +45,11 @@ public class RecordActivity extends AppCompatActivity {
         setContentView(R.layout.activity_record);
         start = (Button) findViewById(R.id.btn_grabar);
         stop = (Button) findViewById(R.id.btn_prueba);
-        play = (Button) findViewById(R.id.btn_reproducir);
+        enviar = (Button) findViewById(R.id.btn_enviar);
         stop.setEnabled(false);
         stop.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
-        play.setEnabled(false);
-        play.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
+        enviar.setEnabled(false);
+        enviar.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
         mEngine = new SplEngine(this.mHandle, RecordActivity.this);
     }
 
@@ -64,40 +62,38 @@ public class RecordActivity extends AppCompatActivity {
     }
 
     public void start(View view) {
-
-        mEngine.start_engine();
-        start.setEnabled(false);
-        start.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
-        stop.setEnabled(true);
-        Toast.makeText(getApplicationContext(), "Recording started",
-                Toast.LENGTH_LONG).show();
-        Log.i(this.toString(), "Recording started");
+        if(!stopped) {
+            mEngine.start_engine();
+            start.setEnabled(false);
+            start.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
+            stop.setEnabled(true);
+            Toast.makeText(getApplicationContext(), "Recording started",
+                    Toast.LENGTH_LONG).show();
+            Log.i(this.toString(), "Recording started");
+        }else{
+            Toast.makeText(RecordActivity.this, "Para grabar otro audio salga y vuelva a entrar en la pantalla", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void stop(View view) {
+        stopped=true;
         amplitude = mEngine.getMedian();
         mEngine.stop_engine();
         stop.setEnabled(false);
         stop.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
         start.setEnabled(true);
-        play.setEnabled(true);
+        enviar.setEnabled(true);
         Toast.makeText(getApplicationContext(), "Value:"+amplitude,
                 Toast.LENGTH_LONG).show();
         Log.i(this.toString(), "Value: "+amplitude);
 
     }
 
-    public void play(View view) {
-        MediaPlayer m = new MediaPlayer();
-        try {
-            //m.setDataSource(outputFile);
-            m.prepare();
-        } catch (IOException ex) {
-            Log.e(ex.getCause().toString(), ex.toString());
-        }
-        m.start();
-        Toast.makeText(getApplicationContext(), "Playing audio",
-                Toast.LENGTH_LONG).show();
-        Log.i(this.toString(), "Playing audio");
+
+    public void enviar(View view) {
+        Intent intent = new Intent();
+        intent.putExtra("value", amplitude);
+        setResult(1, intent);
+        finish();
     }
 }

@@ -173,7 +173,6 @@ public class NoiseActivity extends FragmentActivity implements OnMapReadyCallbac
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
             return null;
         }
 

@@ -44,14 +44,13 @@
         android:layout_toRightOf="@+id/imageView1"
         android:layout_toEndOf="@+id/imageView1" />
     <Button
-        android:id="@+id/btn_reproducir"
+        android:id="@+id/btn_enviar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/btn_prueba"
         android:layout_centerHorizontal="true"
-        android:onClick="play"
-
-        android:text="@string/play" />
+        android:onClick="enviar"
+        android:text="@string/enviar" />
 
 
 </RelativeLayout>

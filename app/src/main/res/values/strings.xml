@@ -27,4 +27,5 @@
     <string name="microfono">Microfono</string>
     <string name="mi_localizacion">Mi localizacion</string>
     <string name="siguiente">Siguiente</string>
+    <string name="enviar">Enviar audio</string>
 </resources>
