@@ -38,7 +38,6 @@ import java.util.Calendar;
  * @author Hashir N A <hashir@mobware4u.com>
  *
  */
-//TO-DO TODO: Cambiar deprecated (otra rama)
 public class SplEngine extends Thread {
     private static final int FREQUENCY = 44100;
     private static final int CHANNEL = AudioFormat.CHANNEL_CONFIGURATION_MONO;
