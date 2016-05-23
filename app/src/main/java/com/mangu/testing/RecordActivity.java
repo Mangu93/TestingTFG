@@ -29,10 +29,10 @@ public class RecordActivity extends AppCompatActivity {
                     amplitude = (double) msg.obj;
                     break;
                 case ERROR_MSG:
-                    Toast.makeText(
+                    /*Toast.makeText(
                             RecordActivity.this,
                             "Error " + msg.obj, Toast.LENGTH_LONG).show();
-                    mEngine.stop_engine();
+                    mEngine.stop_engine();*/
                     break;
                 default:
                     super.handleMessage(msg);
@@ -57,10 +57,7 @@ public class RecordActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        /*Intent intent = new Intent();
-        intent.putExtra("value", amplitude);
-        setResult(1, intent);
-        finish();*/
+        finish();
     }
 
     public void start(View view) {

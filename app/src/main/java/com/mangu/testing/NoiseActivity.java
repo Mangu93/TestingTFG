@@ -1,15 +1,21 @@
 package com.mangu.testing;
 
+import android.app.PendingIntent;
 import android.content.Context;
+import android.location.Criteria;
 import android.location.Location;
+
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class NoiseActivity extends FragmentActivity implements OnMapReadyCallback {
+public class NoiseActivity extends FragmentActivity implements OnMapReadyCallback{
 
     private GoogleMap mMap;
     private LocationManager mLocationManager;
@@ -79,21 +85,16 @@ public class NoiseActivity extends FragmentActivity implements OnMapReadyCallbac
             Marker stringMarker = mMap.addMarker(new MarkerOptions().position(stringLatLng).title("Nivel de ruido:" + splitted[0]).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_image)));
             mMarkerList.add(stringMarker);
         }
-        Random rnd = new Random();
         LatLng malaga = new LatLng(36.721261, -4.421266);
-        LatLng random = new LatLng(rnd.nextInt(50), rnd.nextInt(50));
-        Marker random_marker = mMap.addMarker(new MarkerOptions().position(random).title("Random"));
         Marker example = mMap.addMarker(new MarkerOptions().position(malaga).title("Malaga").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_image)).snippet(this.getString(R.string.example)));
-        mMarkerList.add(random_marker);
         mMarkerList.add(example);
-        /*mMap.moveCamera(CameraUpdateFactory.newLatLng(malaga));
-        mMap.moveCamera(CameraUpdateFactory.zoomIn());*/
         moveCamera(example);
 
     }
 
     public void onClickFocus(View view) {
         try {
+
             List<String> providers = mLocationManager.getProviders(true);
             Location bestLocation = null;
             for (String provider : providers) {
@@ -105,11 +106,24 @@ public class NoiseActivity extends FragmentActivity implements OnMapReadyCallbac
                     bestLocation = l;
                 }
             }
+            if(bestLocation == null) {
+                //Intentando conseguir localizacion por 3G/ WiFi
+                Criteria criteria = new Criteria();
+                criteria.setAccuracy(Criteria.ACCURACY_FINE);
+                criteria.setPowerRequirement(Criteria.POWER_HIGH);
+                LocationListener lL = locationListener;
+                String provider = mLocationManager.getBestProvider(criteria,true);
+                mLocationManager.requestLocationUpdates(provider,0,0, lL, getMainLooper());
+                bestLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            }
             if (bestLocation != null) {
                 LatLng newLatLng = new LatLng(bestLocation.getLatitude(), bestLocation.getLongitude());
-                Marker actualLocation = mMap.addMarker(new MarkerOptions().position(newLatLng).title("Usted está aquí").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_localizar)));
+                Marker actualLocation = mMap.addMarker(new MarkerOptions().position(newLatLng).title("Usted está aquí").snippet("Ultima localización conocida").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_localizar)));
                 actualLocation.showInfoWindow();
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(newLatLng));
+            }else {
+                Toast.makeText(NoiseActivity.this, "Su dispositivo no tiene localizaciones en caché", Toast.LENGTH_SHORT).show();
+                Log.e("NoiseActivity", "No hay localizaciones en caché");
             }
         } catch (SecurityException e) {
             Log.e("SecurityException", e.getLocalizedMessage());
@@ -140,6 +154,7 @@ public class NoiseActivity extends FragmentActivity implements OnMapReadyCallbac
         mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
         marker.showInfoWindow();
     }
+
 
     private class MarkerTask extends AsyncTask<Void, Integer, Void> {
         Context context;
@@ -174,4 +189,14 @@ public class NoiseActivity extends FragmentActivity implements OnMapReadyCallbac
         }
 
     }
+    protected LocationListener locationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            //mLocationManager.removeUpdates(locationListener);
+        }
+
+        @Override public void onProviderDisabled(String provider) {}
+        @Override public void onProviderEnabled(String provider) {}
+        @Override public void onStatusChanged(String provider, int status, Bundle extras) {}
+    };
 }

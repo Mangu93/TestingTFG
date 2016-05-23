@@ -38,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final String NPE_OR_INVALID_VALUE = "NPE or Invalid Value";
     private LocationManager mLocationManager;
-    //private String mUniqueCode="LibeliumBoard";
     private RequestQueue mRequestQueue;
 
 
