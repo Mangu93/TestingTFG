@@ -34,17 +34,18 @@ public class NoiseActivity extends FragmentActivity implements OnMapReadyCallbac
     private List<Marker> mMarkerList;
     private int mCounter = 0;
     private List<String> mStringMarkerList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mStringMarkerList = new ArrayList<>();
         mMarkerList = new ArrayList<>();
-                /*MarkerTask markerTask = new MarkerTask();
-        markerTask.execute();*/
-        mLocationManager = (LocationManager)getApplicationContext().getSystemService(LOCATION_SERVICE);
+        MarkerTask markerTask = new MarkerTask(this.getApplicationContext());
+        markerTask.execute();
+        mLocationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
         setContentView(R.layout.activity_noise);
-        FragmentManager fmanager = getSupportFragmentManager();
-        Fragment fragment = fmanager.findFragmentById(R.id.mapview);
+        FragmentManager fManager = getSupportFragmentManager();
+        Fragment fragment = fManager.findFragmentById(R.id.mapview);
         SupportMapFragment mapFragment = (SupportMapFragment) fragment;
         mapFragment.getMapAsync(this);
     }
@@ -64,18 +65,18 @@ public class NoiseActivity extends FragmentActivity implements OnMapReadyCallbac
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(),15));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15));
                 mMap.animateCamera(CameraUpdateFactory.zoomIn());
                 mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
                 marker.showInfoWindow();
                 return false; //Asi no sobreescribe el comportamiento del Listener original, pudiendo conseguir los botones de abajo
             }
         });
-        for(String s : mStringMarkerList) {
+        for (String s : mStringMarkerList) {
             String[] splitted = s.split(";");
             String[] latlng = splitted[1].split(",");
-            LatLng stringLatLng = new LatLng(Double.valueOf(latlng[0]),Double.valueOf(latlng[1]));
-            Marker stringMarker = mMap.addMarker(new MarkerOptions().position(stringLatLng).title("Nivel de ruido:"+splitted[0]).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_image)));
+            LatLng stringLatLng = new LatLng(Double.valueOf(latlng[0]), Double.valueOf(latlng[1]));
+            Marker stringMarker = mMap.addMarker(new MarkerOptions().position(stringLatLng).title("Nivel de ruido:" + splitted[0]).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_image)));
             mMarkerList.add(stringMarker);
         }
         Random rnd = new Random();
@@ -104,28 +105,22 @@ public class NoiseActivity extends FragmentActivity implements OnMapReadyCallbac
                     bestLocation = l;
                 }
             }
-            if(bestLocation!=null) {
+            if (bestLocation != null) {
                 LatLng newLatLng = new LatLng(bestLocation.getLatitude(), bestLocation.getLongitude());
                 Marker actualLocation = mMap.addMarker(new MarkerOptions().position(newLatLng).title("Usted está aquí").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_localizar)));
                 actualLocation.showInfoWindow();
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(newLatLng));
             }
-        }catch (SecurityException e) {
+        } catch (SecurityException e) {
             Log.e("SecurityException", e.getLocalizedMessage());
-        }catch (NullPointerException ex) {
+        } catch (NullPointerException ex) {
             Log.e("NullPointerException", ex.getLocalizedMessage());
         }
     }
 
     public void onClickNext(View view) {
-        /*  Marker next_marker = mMarkerList.get(next);
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(next_marker.getPosition(),15));
-            mMap.animateCamera(CameraUpdateFactory.zoomIn());
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
-            next_marker.showInfoWindow();
-            */
         int next = mCounter % mMarkerList.size();
-        if(next < mMarkerList.size()) {
+        if (next < mMarkerList.size()) { //Comprobacion innecesaria
             moveCamera(next);
             mCounter++;
         }
@@ -133,14 +128,14 @@ public class NoiseActivity extends FragmentActivity implements OnMapReadyCallbac
 
     public void moveCamera(int next) {
         Marker next_marker = mMarkerList.get(next);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(next_marker.getPosition(),15));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(next_marker.getPosition(), 15));
         mMap.animateCamera(CameraUpdateFactory.zoomIn());
         mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
         next_marker.showInfoWindow();
     }
 
     public void moveCamera(Marker marker) {
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(),15));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15));
         mMap.animateCamera(CameraUpdateFactory.zoomIn());
         mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
         marker.showInfoWindow();
@@ -148,27 +143,29 @@ public class NoiseActivity extends FragmentActivity implements OnMapReadyCallbac
 
     private class MarkerTask extends AsyncTask<Void, Integer, Void> {
         Context context;
+
         public MarkerTask(Context context) {
             this.context = context;
         }
+
         @Override
         protected Void doInBackground(Void... params) {
             //Suponiendo que ya tenemos el JSON por Volley, que lo mockeo aqui
             JSONObject jsonObject = new JSONObject();
             JSONObject jsonArray = new JSONObject();
             try {
-                jsonObject.put("value",params[0]);
-                jsonObject.put("localization",params[1]);
-                jsonArray.put("marker",jsonObject);
+                jsonObject.put("value","80" );//params[0] o volley o como sea
+                jsonObject.put("localization", "36.715221, -4.477988");//params[1] o volley o como sea
+                jsonArray.put("marker", jsonObject);
             } catch (JSONException e) {
-                Log.e("JSONException",e.getMessage());
-            }catch(NullPointerException e) {
-                Log.e("NullPointerException",e.getMessage());
+                Log.e("JSONException", e.getMessage());
+            } catch (NullPointerException e) {
+                Log.e("NullPointerException", e.getMessage());
             }
             @SuppressWarnings("UnusedAssignment") JSONObject otroObject = new JSONObject();
             try {
                 otroObject = jsonArray.getJSONObject("marker");
-                String toAdd = otroObject.getString("value")+ ";"+ otroObject.getString("localization");
+                String toAdd = otroObject.getString("value") + ";" + otroObject.getString("localization");
                 mStringMarkerList.add(toAdd);
             } catch (JSONException e) {
                 e.printStackTrace();

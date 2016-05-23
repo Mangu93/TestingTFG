@@ -1,5 +1,7 @@
 package com.mangu.testing;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -20,23 +22,23 @@ public class RecordActivity extends AppCompatActivity {
     private boolean stopped = false;
     private double amplitude = -1; //Umbral
     public Handler mHandle = new Handler() {
-      @Override
+        @Override
         public void handleMessage(Message msg) {
-          switch (msg.what) {
-              case MY_MSG:
-                amplitude = (double) msg.obj;
-                break;
-              case ERROR_MSG:
-                  Toast.makeText(
-                          RecordActivity.this,
-                          "Error " + msg.obj, Toast.LENGTH_LONG).show();
-                  mEngine.stop_engine();
-                  break;
-              default :
-                  super.handleMessage(msg);
-                  break;
-          }
-      }
+            switch (msg.what) {
+                case MY_MSG:
+                    amplitude = (double) msg.obj;
+                    break;
+                case ERROR_MSG:
+                    Toast.makeText(
+                            RecordActivity.this,
+                            "Error " + msg.obj, Toast.LENGTH_LONG).show();
+                    mEngine.stop_engine();
+                    break;
+                default:
+                    super.handleMessage(msg);
+                    break;
+            }
+        }
     };
 
     @Override
@@ -55,14 +57,14 @@ public class RecordActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent();
+        /*Intent intent = new Intent();
         intent.putExtra("value", amplitude);
         setResult(1, intent);
-        finish();
+        finish();*/
     }
 
     public void start(View view) {
-        if(!stopped) {
+        if (!stopped) {
             mEngine.start_engine();
             start.setEnabled(false);
             start.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
@@ -70,30 +72,48 @@ public class RecordActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Recording started",
                     Toast.LENGTH_LONG).show();
             Log.i(this.toString(), "Recording started");
-        }else{
+        } else {
             Toast.makeText(RecordActivity.this, "Para grabar otro audio salga y vuelva a entrar en la pantalla", Toast.LENGTH_SHORT).show();
         }
     }
 
     public void stop(View view) {
-        stopped=true;
+        stopped = true;
         amplitude = mEngine.getMedian();
         mEngine.stop_engine();
         stop.setEnabled(false);
         stop.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
         start.setEnabled(true);
         enviar.setEnabled(true);
-        Toast.makeText(getApplicationContext(), "Value:"+amplitude,
+        Toast.makeText(getApplicationContext(), "Value:" + amplitude,
                 Toast.LENGTH_LONG).show();
-        Log.i(this.toString(), "Value: "+amplitude);
+        Log.i(this.toString(), "Value: " + amplitude);
 
     }
 
-
     public void enviar(View view) {
-        Intent intent = new Intent();
-        intent.putExtra("value", amplitude);
-        setResult(1, intent);
-        finish();
+        showAlert();
+    }
+
+    private void showAlert() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Nivel de ruido: " + amplitude +" dB")
+                .setTitle("¿Quiere enviar este audio?")
+                .setCancelable(false)
+                .setPositiveButton("Si", new DialogInterface.OnClickListener() {
+                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        Intent intent = new Intent();
+                        intent.putExtra("value", amplitude);
+                        setResult(1, intent);
+                        finish();
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        dialog.cancel();
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
     }
 }
