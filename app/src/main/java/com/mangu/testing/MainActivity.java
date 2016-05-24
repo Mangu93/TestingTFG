@@ -9,7 +9,9 @@ import android.content.pm.LabeledIntent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
+import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -106,6 +108,16 @@ public class MainActivity extends AppCompatActivity {
                             // Found best last known location: %s", l);
                             bestLocation = l;
                         }
+                    }
+                    if(bestLocation == null) {
+                        //Intentando conseguir localizacion por 3G/ WiFi
+                        Criteria criteria = new Criteria();
+                        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+                        criteria.setPowerRequirement(Criteria.POWER_HIGH);
+                        LocationListener lL = locationListener;
+                        String provider = mLocationManager.getBestProvider(criteria,true);
+                        mLocationManager.requestLocationUpdates(provider,0,0, lL, getMainLooper());
+                        bestLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                     }
                     //TO-DO bestLocation to String may cause nullPointerException
                     if(value!=-1 && bestLocation!=null) {
@@ -226,4 +238,14 @@ public class MainActivity extends AppCompatActivity {
             return null; //I don't like it. I don't liek it
         }
     }
+    protected LocationListener locationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            //mLocationManager.removeUpdates(locationListener);
+        }
+
+        @Override public void onProviderDisabled(String provider) {}
+        @Override public void onProviderEnabled(String provider) {}
+        @Override public void onStatusChanged(String provider, int status, Bundle extras) {}
+    };
 }
