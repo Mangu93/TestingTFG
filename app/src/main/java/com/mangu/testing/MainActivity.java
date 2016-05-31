@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -95,8 +96,6 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == 1) {
                 try {
                     double value = data.getDoubleExtra("value",-1);
-                        /*UploadTask uploadTask = new UploadTask();
-                        uploadTask.execute();*/
                     List<String> providers = mLocationManager.getProviders(true);
                     Location bestLocation = null;
                     for (String provider : providers) {
@@ -119,18 +118,18 @@ public class MainActivity extends AppCompatActivity {
                         mLocationManager.requestLocationUpdates(provider,0,0, lL, getMainLooper());
                         bestLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                     }
-                    //TO-DO bestLocation to String may cause nullPointerException
+                    //TO-DO TODO bestLocation to String may cause nullPointerException
                     if(value!=-1 && bestLocation!=null) {
                         UploadTask uploadTask = new UploadTask(getApplicationContext());
                         String lat_long = bestLocation.getLatitude() + "," + bestLocation.getLongitude();
-                        //uploadTask.execute(String.valueOf(value),lat_long);
+                        uploadTask.execute(String.valueOf(value),lat_long);
                     }else {
                         Log.e(NPE_OR_INVALID_VALUE,"Value:"+value);
                         if(bestLocation==null){
                             Log.e(NPE_OR_INVALID_VALUE,"BestLocation is null");
                         }
                     }
-                    Toast.makeText(this.getApplicationContext(),String.valueOf(value), Toast.LENGTH_LONG).show();
+                    //Toast.makeText(this.getApplicationContext(),String.valueOf(value), Toast.LENGTH_LONG).show();
                     Log.i("onActivityResult", String.valueOf(value));
                 } catch (SecurityException e) {
                     Log.e("SecurityException", e.getLocalizedMessage());
@@ -201,24 +200,28 @@ public class MainActivity extends AppCompatActivity {
 
             //POST al server de ANTONIO, TRABAJA CABRON
             //ES DOS DE MAYO Y AUN NO HE PODIDO HACER ESTA PARTE POR TI
+
             JSONObject jsonObject = new JSONObject();
             JSONObject jsonArray = new JSONObject();
+            JSONObject jsonRequest = new JSONObject();
             try {
                 jsonObject.put("value",params[0]);
                 jsonObject.put("localization",params[1]);
                 jsonArray.put("marker",jsonObject);
+                jsonRequest = new JSONObject(jsonArray.toString());
             } catch (JSONException e) {
                 Log.e("JSONException",e.getMessage());
             }catch(NullPointerException e) {
                 Log.e("NullPointerException",e.getMessage());
             }
             //RequestQueue queue = Volley.newRequestQueue(this.context);
-            String url = "www.serverantonio.com";
+            final String url = "http://150.214.108.91:8000";
             //ConcurrentHashMap es como yo jugando a un juego clásico de Sonic
             //Va muy rápido, pero seguro que me voy a pegar una ostia del carajo.
-            ConcurrentHashMap<String, String> sendParams = new ConcurrentHashMap<>();
-            sendParams.put("test",jsonObject.toString());
-            JsonObjectRequest req = new JsonObjectRequest(url, new JSONObject(sendParams), new Response.Listener<JSONObject>() {
+            /*ConcurrentHashMap<String, String> sendParams = new ConcurrentHashMap<>();
+            sendParams.put("test",jsonObject.toString());*/
+
+            JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST,url, jsonRequest, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
                     try {
@@ -231,6 +234,8 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     VolleyLog.e("Error: ", error.getMessage());
+                    VolleyLog.e("Error: ", error.getLocalizedMessage());
+
                 }
             });
             req.setTag(TAG);

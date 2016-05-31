@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -7,15 +6,11 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin">
-
-
-
-
     <ImageView
         android:id="@+id/imageView1"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:contentDescription="Microfono"
+        android:contentDescription="@string/microfono"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="37dp"
         android:scaleType="fitXY"
@@ -31,7 +26,6 @@
         android:onClick="start"
         android:contentDescription="@string/microfono"
         android:text="@string/start"
-
         />
     <Button
         android:id="@+id/btn_prueba"
@@ -39,7 +33,6 @@
         android:layout_height="wrap_content"
         android:onClick="stop"
         android:text="@string/stop"
-
         android:layout_alignTop="@+id/btn_grabar"
         android:layout_toRightOf="@+id/imageView1"
         android:layout_toEndOf="@+id/imageView1" />
@@ -49,8 +42,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/btn_prueba"
         android:layout_centerHorizontal="true"
-        android:onClick="enviar"
+        android:onClick="send"
         android:text="@string/enviar" />
-
-
 </RelativeLayout>

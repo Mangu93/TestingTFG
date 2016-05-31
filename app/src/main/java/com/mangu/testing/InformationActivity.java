@@ -13,10 +13,6 @@ public class InformationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_information);
     }
 
-    /**
-     * Abre cliente de correo al pulsar en el correo.
-     *
-     */
     public void onClickMail(View view) {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("plain/text");

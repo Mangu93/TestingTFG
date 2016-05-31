@@ -233,7 +233,7 @@ public class SplEngine extends Thread {
 
     /**
      * Get the maximum value recorded so far
-     * @return
+     * @return mMaxValue
      */
     public double getMaxValue() {
         return mMaxValue;

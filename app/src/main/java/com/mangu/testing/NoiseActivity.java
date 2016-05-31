@@ -165,6 +165,9 @@ public class NoiseActivity extends FragmentActivity implements OnMapReadyCallbac
 
         @Override
         protected Void doInBackground(Void... params) {
+            //To-Do TODO
+            //String ip_antonio = 150.214.108.91:8000
+
             //Suponiendo que ya tenemos el JSON por Volley, que lo mockeo aqui
             JSONObject jsonObject = new JSONObject();
             JSONObject jsonArray = new JSONObject();

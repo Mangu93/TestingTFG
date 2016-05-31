@@ -29,10 +29,6 @@ public class RecordActivity extends AppCompatActivity {
                     amplitude = (double) msg.obj;
                     break;
                 case ERROR_MSG:
-                    /*Toast.makeText(
-                            RecordActivity.this,
-                            "Error " + msg.obj, Toast.LENGTH_LONG).show();
-                    mEngine.stop_engine();*/
                     break;
                 default:
                     super.handleMessage(msg);
@@ -66,8 +62,8 @@ public class RecordActivity extends AppCompatActivity {
             start.setEnabled(false);
             start.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
             stop.setEnabled(true);
-            Toast.makeText(getApplicationContext(), "Recording started",
-                    Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Comenzando a grabar",
+                    Toast.LENGTH_SHORT).show();
             Log.i(this.toString(), "Recording started");
         } else {
             Toast.makeText(RecordActivity.this, "Para grabar otro audio salga y vuelva a entrar en la pantalla", Toast.LENGTH_SHORT).show();
@@ -82,19 +78,17 @@ public class RecordActivity extends AppCompatActivity {
         stop.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
         start.setEnabled(true);
         enviar.setEnabled(true);
-        Toast.makeText(getApplicationContext(), "Value:" + amplitude,
-                Toast.LENGTH_LONG).show();
         Log.i(this.toString(), "Value: " + amplitude);
 
     }
 
-    public void enviar(View view) {
+    public void send(View view) {
         showAlert();
     }
 
     private void showAlert() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Nivel de ruido: " + amplitude +" dB")
+        builder.setMessage("Nivel de ruido: " + amplitude + " dB")
                 .setTitle("¿Quiere enviar este audio?")
                 .setCancelable(false)
                 .setPositiveButton("Si", new DialogInterface.OnClickListener() {

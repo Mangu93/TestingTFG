@@ -7,15 +7,10 @@
         <string name="Seccion_Ayuda">Esta aplicación ha sido realizada por Adrián Marín Portillo, estudiante del Grado de Ingeniería Informática, para el TFG.\n\nPara mas información contacto:
     </string>
     <string name="correo">adrianmarinportillo@gmail.com</string>
-    <string name="subir_archivo">Subir via archivo</string>
-    <string name="subir_grabar">Grabar audio</string>
-    <string name="elegir">Elija una opcion</string>
     <string name="title_activity_record_activity">record_activity</string>
     <string name="start">Grabar</string>
     <string name="stop">Parar</string>
-    <string name="play">Reproducir</string>
     <string name="Compartir">Compartir</string>
-    <string name="title_activity_compartir">compartir</string>
     <string name="share_twitter">Mensaje de Twitter</string>
     <string name="share_facebook">Mensaje de Facebook</string>
     <string name="share_email_gmail">Mensaje de Gmail</string>
