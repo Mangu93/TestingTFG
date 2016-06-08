@@ -34,15 +34,32 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class MainActivity extends AppCompatActivity {
     private static final int UPLOAD_CODE = 101;
     private static final String TAG = "MainActivity";
     private static final String NPE_OR_INVALID_VALUE = "NPE or Invalid Value";
+    protected LocationListener locationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            //mLocationManager.removeUpdates(locationListener);
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+        }
+    };
     private LocationManager mLocationManager;
     private RequestQueue mRequestQueue;
-
+    private Intent openChooser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mLocationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
         mRequestQueue = Volley.newRequestQueue(getApplicationContext());
+        ChooserTask chooserTask = new ChooserTask();
+        chooserTask.execute();
     }
 
     public void onClickNoise(View view) {
@@ -95,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == UPLOAD_CODE) {
             if (resultCode == 1) {
                 try {
-                    double value = data.getDoubleExtra("value",-1);
+                    double value = data.getDoubleExtra("value", -1);
                     List<String> providers = mLocationManager.getProviders(true);
                     Location bestLocation = null;
                     for (String provider : providers) {
@@ -104,29 +123,28 @@ public class MainActivity extends AppCompatActivity {
                             continue;
                         }
                         if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
-                            // Found best last known location: %s", l);
                             bestLocation = l;
                         }
                     }
-                    if(bestLocation == null) {
+                    if (bestLocation == null) {
                         //Intentando conseguir localizacion por 3G/ WiFi
                         Criteria criteria = new Criteria();
                         criteria.setAccuracy(Criteria.ACCURACY_FINE);
                         criteria.setPowerRequirement(Criteria.POWER_HIGH);
                         LocationListener lL = locationListener;
-                        String provider = mLocationManager.getBestProvider(criteria,true);
-                        mLocationManager.requestLocationUpdates(provider,0,0, lL, getMainLooper());
+                        String provider = mLocationManager.getBestProvider(criteria, true);
+                        mLocationManager.requestLocationUpdates(provider, 0, 0, lL, getMainLooper());
                         bestLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                     }
                     //TO-DO TODO bestLocation to String may cause nullPointerException
-                    if(value!=-1 && bestLocation!=null) {
+                    if (value != -1 && bestLocation != null) {
                         UploadTask uploadTask = new UploadTask(getApplicationContext());
                         String lat_long = bestLocation.getLatitude() + "," + bestLocation.getLongitude();
-                        uploadTask.execute(String.valueOf(value),lat_long);
-                    }else {
-                        Log.e(NPE_OR_INVALID_VALUE,"Value:"+value);
-                        if(bestLocation==null){
-                            Log.e(NPE_OR_INVALID_VALUE,"BestLocation is null");
+                        uploadTask.execute(String.valueOf(value), lat_long);
+                    } else {
+                        Log.e(NPE_OR_INVALID_VALUE, "Value:" + value);
+                        if (bestLocation == null) {
+                            Log.e(NPE_OR_INVALID_VALUE, "BestLocation is null");
                         }
                     }
                     //Toast.makeText(this.getApplicationContext(),String.valueOf(value), Toast.LENGTH_LONG).show();
@@ -145,6 +163,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickShare(View view) {
+        if (this.openChooser != null) { //Evitar NPE
+            startActivity(openChooser);
+        } else {
+            startActivity(generateIntent());
+        }
+    }
+
+    public void setOpenChooser(Intent openChooser) {
+        this.openChooser = openChooser;
+    }
+
+    public Intent generateIntent() {
         Resources resources = getResources();
         Intent emailIntent = new Intent();
         emailIntent.setAction(Intent.ACTION_SEND);
@@ -187,14 +217,16 @@ public class MainActivity extends AppCompatActivity {
         // convert intentList to array
         LabeledIntent[] extraIntents = intentList.toArray(new LabeledIntent[intentList.size()]);
         openInChooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, extraIntents);
-        startActivity(openInChooser);
+        return openInChooser;
     }
 
     private class UploadTask extends AsyncTask<String, Integer, Void> {
         private Context context;
+
         public UploadTask(Context context) {
             this.context = context;
         }
+
         @Override
         protected Void doInBackground(String... params) {
 
@@ -205,23 +237,17 @@ public class MainActivity extends AppCompatActivity {
             JSONObject jsonArray = new JSONObject();
             JSONObject jsonRequest = new JSONObject();
             try {
-                jsonObject.put("value",params[0]);
-                jsonObject.put("localization",params[1]);
-                jsonArray.put("marker",jsonObject);
+                jsonObject.put("value", params[0]);
+                jsonObject.put("localization", params[1]);
+                jsonArray.put("marker", jsonObject);
                 jsonRequest = new JSONObject(jsonArray.toString());
             } catch (JSONException e) {
-                Log.e("JSONException",e.getMessage());
-            }catch(NullPointerException e) {
-                Log.e("NullPointerException",e.getMessage());
+                Log.e("JSONException", e.getMessage());
+            } catch (NullPointerException e) {
+                Log.e("NullPointerException", e.getMessage());
             }
-            //RequestQueue queue = Volley.newRequestQueue(this.context);
             final String url = "http://150.214.108.91:8000";
-            //ConcurrentHashMap es como yo jugando a un juego clásico de Sonic
-            //Va muy rápido, pero seguro que me voy a pegar una ostia del carajo.
-            /*ConcurrentHashMap<String, String> sendParams = new ConcurrentHashMap<>();
-            sendParams.put("test",jsonObject.toString());*/
-
-            JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST,url, jsonRequest, new Response.Listener<JSONObject>() {
+            JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, url, jsonRequest, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
                     try {
@@ -235,7 +261,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onErrorResponse(VolleyError error) {
                     VolleyLog.e("Error: ", error.getMessage());
                     VolleyLog.e("Error: ", error.getLocalizedMessage());
-
+                    VolleyLog.e("Error: ", error.networkResponse.toString());
                 }
             });
             req.setTag(TAG);
@@ -243,14 +269,17 @@ public class MainActivity extends AppCompatActivity {
             return null; //I don't like it. I don't liek it
         }
     }
-    protected LocationListener locationListener = new LocationListener() {
+
+    private class ChooserTask extends AsyncTask<Void, Void, Intent> {
+
         @Override
-        public void onLocationChanged(Location location) {
-            //mLocationManager.removeUpdates(locationListener);
+        protected Intent doInBackground(Void... params) {
+            return generateIntent();
         }
 
-        @Override public void onProviderDisabled(String provider) {}
-        @Override public void onProviderEnabled(String provider) {}
-        @Override public void onStatusChanged(String provider, int status, Bundle extras) {}
-    };
+        @Override
+        protected void onPostExecute(Intent intent) {
+            setOpenChooser(intent);
+        }
+    }
 }

@@ -36,7 +36,6 @@ public class RecordActivity extends AppCompatActivity {
             }
         }
     };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,9 +76,10 @@ public class RecordActivity extends AppCompatActivity {
         stop.setEnabled(false);
         stop.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
         start.setEnabled(true);
+        start.getBackground().clearColorFilter();
         enviar.setEnabled(true);
+        enviar.getBackground().clearColorFilter();
         Log.i(this.toString(), "Value: " + amplitude);
-
     }
 
     public void send(View view) {
